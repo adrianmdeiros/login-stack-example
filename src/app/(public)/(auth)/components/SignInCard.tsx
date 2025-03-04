@@ -8,7 +8,7 @@ import SigInForm from "./SigInForm"
 
 export default function SignInCard() {
     return (
-        <Card >
+        <Card>
             <CardHeader>
                 <CardDescription>Enter if you already have an account.</CardDescription>
             </CardHeader>

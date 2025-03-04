@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Loading from "../loading";
+import Loading from "../../../loading";
 import UserCard from "../components/UserCard";
 import { cookies } from "next/headers";
 import Link from "next/link";

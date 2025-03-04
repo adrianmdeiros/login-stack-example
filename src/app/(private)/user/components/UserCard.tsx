@@ -5,7 +5,7 @@ import { LogOut, Pencil, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
-import Loading from "../loading";
+import Loading from "../../../loading";
 
 type UserCardProps = {
     email: string
@@ -22,7 +22,7 @@ export default function UserCard({ avatarUrl, email }: UserCardProps) {
         if (res.ok) {
             setLogoutLoading(false)
             toast.success('Logged out successfully.')
-            router.push('/')
+            router.back()
         }
     }
 
