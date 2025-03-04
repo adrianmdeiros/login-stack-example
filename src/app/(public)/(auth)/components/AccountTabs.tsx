@@ -4,8 +4,8 @@ import SignUpCard from "./SignUpCard";
 
 export default function AccountTabs() {
   return (
-    <Tabs defaultValue="sign-in" className="w-80">
-      <TabsList className="grid w-full grid-cols-2">
+    <Tabs defaultValue="sign-in" className="w-80 min-h-[460px]">
+      <TabsList className="grid w-full grid-cols-2 ">
         <TabsTrigger value="sign-in">Sign In</TabsTrigger>
         <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
       </TabsList>
