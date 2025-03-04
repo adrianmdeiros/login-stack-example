@@ -9,6 +9,7 @@ import { compare, hash } from 'bcryptjs'
 import { SignInFormSchema, SignUpFormSchema } from '@/lib/definitions'
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
+import { verifyEnvJwtSecret } from '@/lib/utils'
 
 export async function signUp(_: unknown, formData: FormData) {
     const validatedFields = SignUpFormSchema.safeParse(Object.fromEntries(formData))
@@ -50,21 +51,7 @@ export async function signUp(_: unknown, formData: FormData) {
             password: hashedPassword,
         }).returning({ id: users.id, email: users.email })
 
-        const { id, email } = newUser[0]
-        const tokenPayload = {
-            user: {
-                id,
-                email
-            }
-        }
-
-        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '1d' })
-        const authCookies = await cookies()
-
-        authCookies.set('token', token, {
-            httpOnly: true,
-            secure: true
-        })
+        await authenticateUser(newUser[0])
 
         return {
             success: true,
@@ -131,26 +118,12 @@ export async function signIn(_: unknown, formData: FormData) {
             }
         }
 
-        const { id, email } = user[0]
-        const tokenPayload = {
-            user: {
-                id,
-                email
-            }
-        }
-        
-        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET!, { expiresIn: '1d' })
-        const authCookies = await cookies()
-
-        authCookies.set('token', token, {
-            httpOnly: true,
-            secure: true
-        })
+        const { token } = await authenticateUser(user[0])
 
         return {
             success: true,
             message: 'User logged in successfully.',
-            redirect: `/user/${id}`,
+            redirect: `/user/${user[0].id}`,
             token
         }
 
@@ -162,4 +135,44 @@ export async function signIn(_: unknown, formData: FormData) {
             }
         }
     }
+}
+
+type SignUpUser = {
+    id: string
+    email: string
+}
+
+type SignInUser = {
+    id: string
+    email: string
+    password: string
+}
+
+export async function authenticateUser(user: SignUpUser | SignInUser) {
+    const tokenPayload = await createTokenPayload(user)
+    const secret = verifyEnvJwtSecret()
+
+    const token = jwt.sign(tokenPayload, secret, { expiresIn: '1d' })
+    await saveTokenInCookies(token)
+    return { token }
+}
+
+export async function createTokenPayload(user: SignUpUser | SignInUser) {
+    const { id, email } = user
+    const tokenPayload = {
+        user: {
+            id,
+            email
+        }
+    }
+    return tokenPayload
+}
+
+export async function saveTokenInCookies(token: string) {
+    const authCookies = await cookies()
+
+    authCookies.set('token', token, {
+        httpOnly: true,
+        secure: true
+    })
 }

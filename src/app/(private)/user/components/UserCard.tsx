@@ -20,6 +20,7 @@ export default function UserCard({ avatarUrl, email }: UserCardProps) {
         setLogoutLoading(true)
         const res = await fetch('/api/auth/logout', { method: 'POST' })
         if (res.ok) {
+            setLogoutLoading(false)
             toast.success('Logged out successfully.')
             router.push('/')
         }

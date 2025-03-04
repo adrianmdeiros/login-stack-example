@@ -2,6 +2,8 @@ import { Loader2 } from "lucide-react";
 
 export default function Loading() {
   return (
-    <Loader2 className="animate-spin p-4" />
+    <div className="p-4">
+      <Loader2 className="animate-spin" />
+    </div>
   )
 }

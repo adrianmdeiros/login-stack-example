@@ -1,4 +1,5 @@
 import { getUser } from "@/app/(private)/user/actions"
+import { verifyEnvJwtSecret } from "@/lib/utils"
 import { jwtVerify } from "jose"
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> },) {
@@ -15,12 +16,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         return Response.json({ message: 'Token is required.' }, { status: 401 })
     }
 
-    if (!process.env.JWT_SECRET) {
+    const JWT_SECRET = verifyEnvJwtSecret()
+
+    if (!JWT_SECRET) {
         return Response.json({ message: 'JWT_SECRET is not defined in the environment variables.' }, { status: 401 })
     }
 
     try {
-        const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+        const secret = new TextEncoder().encode(JWT_SECRET)
         const { payload } = await jwtVerify(token, secret) as { payload: { user: { id: string }, exp: number } }
         const { user, exp } = payload;
 
