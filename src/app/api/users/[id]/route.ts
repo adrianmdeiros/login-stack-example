@@ -24,6 +24,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         const { payload } = await jwtVerify(token, secret) as { payload: { user: { id: string }, exp: number } }
         const { user, exp } = payload;
 
+        const [foundUser] = await getUser(id)
+        
+        if (!foundUser) {
+            return Response.json({ message: 'User not found.' }, { status: 404 })
+        }
+
         if (user.id !== id) {
             return Response.json({ message: 'Denied access.' }, { status: 403 })
         }
@@ -34,11 +40,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             return Response.json({ message: 'Token expired.' }, { status: 401 })
         }
 
-        const [foundUser] = await getUser(id)
-
-        if (!foundUser) {
-            return Response.json({ message: 'User not found.' }, { status: 404 })
-        }
         
         return Response.json({ user: foundUser, message: 'User found.' }, { status: 200 })
 

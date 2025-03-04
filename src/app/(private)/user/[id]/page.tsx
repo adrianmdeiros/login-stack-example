@@ -21,7 +21,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
 
   if(!res.ok){
     const errorData = await res.json()
-
+    
     if(res.status === 404) {
       return (
         <div className="flex flex-col items-center justify-center h-screen w-full">
