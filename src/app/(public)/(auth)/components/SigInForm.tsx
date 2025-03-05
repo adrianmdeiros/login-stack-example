@@ -6,13 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { useActionState, useEffect } from "react";
-import { signIn } from "../actions";
+import { signIn as signInAction } from "../actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
+import { SignIn } from "@/lib/auth-action";
 
 export default function SigInForm() {
-  const [state, handleSignIn, pending] = useActionState(signIn, undefined)
+  const [state, handleSignIn, pending] = useActionState(signInAction, undefined)
   const router = useRouter()
 
   const fieldErrorBorderColor = {
@@ -34,7 +35,7 @@ export default function SigInForm() {
   )
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <form action={handleSignIn} className="flex flex-col gap-4">
         {state?.success === false &&
           <p className="text-yellow-500 font-semibold text-sm">
@@ -84,6 +85,12 @@ export default function SigInForm() {
           {pending ? <Loader2 className="animate-spin" /> : "Sign In"}
         </Button>
       </form>
-    </>
+      <span className="text-center">or</span>
+      <form action={() => SignIn()}>
+        <Button type="submit" variant='outline' className='w-full'>
+          Sign In With Google
+        </Button>
+      </form>
+    </div>
   )
 }

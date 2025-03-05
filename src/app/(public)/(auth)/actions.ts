@@ -1,6 +1,4 @@
 'use server'
-
-import 'dotenv/config'
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { DatabaseError } from 'pg'
@@ -154,6 +152,7 @@ export async function authenticateUser(user: SignUpUser | SignInUser) {
 
     const token = jwt.sign(tokenPayload, secret, { expiresIn: '1d' })
     await saveTokenInCookies(token)
+
     return { token }
 }
 

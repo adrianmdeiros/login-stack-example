@@ -1,8 +1,8 @@
-import { Suspense } from "react";
+import Link from "next/link";
 import Loading from "../../../loading";
 import UserCard from "../components/UserCard";
+import { Suspense } from "react";
 import { cookies } from "next/headers";
-import Link from "next/link";
 
 export default async function UserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -33,7 +33,7 @@ export default async function UserPage({ params }: { params: Promise<{ id: strin
       )
     }
 
-    if(res.status === 401 || res.status === 403) {
+    if(res.status === 403) {
       return (
         <div className="flex flex-col items-center justify-center h-screen w-full">
           Not authorized. Please go back.
