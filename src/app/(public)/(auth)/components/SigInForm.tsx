@@ -5,34 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
-import { useActionState, useEffect } from "react";
-import { signIn as signInAction } from "../actions";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import Loading from "@/app/loading";
-import { SignIn } from "@/lib/auth-action";
+import { useActionState } from "react";
+import { signIn as signInAction, GoogleSignIn } from "../actions";
+import Image from "next/image";
 
 export default function SigInForm() {
   const [state, handleSignIn, pending] = useActionState(signInAction, undefined)
-  const router = useRouter()
+  const [_, handleGoogleSignIn, googlePending] = useActionState(GoogleSignIn, undefined)
 
   const fieldErrorBorderColor = {
     'email': state?.errors?.email && 'border-yellow-500',
     'password': state?.errors?.password && 'border-yellow-500'
   }
-
-  useEffect(() => {
-    if (state?.success) {
-      toast.success(state.message)
-      router.push(state.redirect!)
-    }
-  }, [state?.success, router])
-
-  if (pending) return (
-    <div className="flex items-center justify-center h-full w-full">
-      <Loading />
-    </div>
-  )
 
   return (
     <div className="flex flex-col gap-4">
@@ -86,9 +70,21 @@ export default function SigInForm() {
         </Button>
       </form>
       <span className="text-center">or</span>
-      <form action={() => SignIn()}>
-        <Button type="submit" variant='outline' className='w-full'>
-          Sign In With Google
+      <form action={handleGoogleSignIn} >
+        <Button disabled={googlePending} type="submit" variant='secondary' className='w-full flex gap-3 items-center h-10'>
+          {googlePending ?
+            <Loader2 className="animate-spin" />
+            :
+            <>
+              <Image
+                src="/google-icon.svg"
+                alt="Google Icon"
+                width={20}
+                height={20}
+              />
+              <span>Sign In with Google</span>
+            </>
+          }
         </Button>
       </form>
     </div>

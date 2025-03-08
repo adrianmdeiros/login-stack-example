@@ -1,7 +1,6 @@
-import { cookies } from "next/headers";
+import { deleteSession } from "@/lib/session";
 
 export async function POST() {
-    const _cookies = await cookies()
-    _cookies.delete('token')
-    return Response.json({ message: 'Logout successful.' }, { status: 200 })
+    await deleteSession()
+    return Response.json({ message: 'Logged out successfully' }, { status: 200 })
 }

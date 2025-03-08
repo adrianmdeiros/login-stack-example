@@ -1,5 +1,11 @@
 import { z } from 'zod'
 
+export type User = {
+    email: string
+    password: string | null
+    avatarUrl: string | null
+}
+
 export const SignUpFormSchema = z.object({
     email: z
         .string()

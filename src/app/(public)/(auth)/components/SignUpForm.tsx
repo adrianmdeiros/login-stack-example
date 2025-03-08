@@ -7,23 +7,20 @@ import { useActionState, useEffect } from "react";
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 
 export default function SignUpForm() {
   const [state, handleSignUp, pending] = useActionState(signUp, undefined)
-  const router = useRouter()
 
   useEffect(() => {
     if (state?.success) {
       toast.success(state.message)
-      router.push(state.redirect!)
     }
-  }, [state?.success, router])
+  }, [state?.success])
 
 
   const fieldErrorBorderColor = {
-    'email': state?.errors?.email || state?.success === false && 'border-yellow-500',
+    'email': state?.errors?.email || state?.message === 'User already exists.' && 'border-yellow-500',
     'password': state?.errors?.password && 'border-yellow-500',
     'confirmPassword': state?.errors?.confirmPassword && 'border-yellow-500',
   }
@@ -60,7 +57,16 @@ export default function SignUpForm() {
           defaultValue={state?.fieldData?.password}
           className={`text-sm placeholder:text-neutral-500 ${fieldErrorBorderColor['password']}`}
         />
-        {state?.errors?.password && <p className="text-yellow-500 font-semibold text-sm">{state.errors.password[0]}</p>}
+        <ul>
+          {state?.errors?.password?.map(error => (
+            <li key={error}>
+              <p className="text-yellow-500 font-semibold text-sm">
+                {error}
+              </p>
+            </li>
+          ))
+          }
+        </ul>
       </div>
 
       <div>
@@ -74,7 +80,11 @@ export default function SignUpForm() {
           defaultValue={state?.fieldData?.confirmPassword}
           className={`text-sm placeholder:text-neutral-500 ${fieldErrorBorderColor['confirmPassword']}`}
         />
-        {state?.errors?.confirmPassword && <p className="text-yellow-500 font-semibold text-sm">{state.errors.confirmPassword[0]}</p>}
+        {state?.errors?.confirmPassword &&
+          <p className="text-yellow-500 font-semibold text-sm">
+            {state.errors.confirmPassword[0]}
+          </p>
+        }
       </div>
 
       <Button type="submit" disabled={pending} variant="default" className="w-full font-bold">

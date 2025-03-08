@@ -1,38 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { decrypt } from "./lib/session";
+import { auth } from "@/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET
+const privateRoutes = []
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isProtectedRoute = path.startsWith('/user')
-  const authToken = request.cookies.get('token')?.value;
-
+  
   if (isProtectedRoute) {
-    if (!authToken) {
+    const token = request.cookies.get('token')?.value;
+    const googleSession = await auth()
+
+    if (!token && !googleSession) {
       return NextResponse.redirect(new URL('/', request.url))
     }
 
-    try {
-      const secret = new TextEncoder().encode(JWT_SECRET)
-      const { payload } = await jwtVerify(authToken, secret) 
-      const { exp } = payload;
-      const currentTime = Date.now() / 1000;
-
-      if (exp && exp < currentTime) {
+    if (token) {
+      const session = await decrypt(token)
+      if (!session) {
         return NextResponse.redirect(new URL('/', request.url))
       }
-
-      return NextResponse.next()
-      
-    } catch (error) {
-      console.error('Invalid token.', error)
-      return NextResponse.redirect(new URL('/', request.url))
+      if (session.exp && session.exp < Date.now() / 1000) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
     }
+
   }
 
   return NextResponse.next()
-  
+
 }
 
 export const config = {
@@ -40,4 +37,5 @@ export const config = {
     '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }
+
 export { auth } from "@/auth"
