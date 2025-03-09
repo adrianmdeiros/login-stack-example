@@ -7,10 +7,19 @@ export const authConfig = {
   providers: [Google],
   adapter: DrizzleAdapter(db),
   callbacks: {
-    async session({ session, user }) {
-      session.user.id = user.id
+    async session({ session, token }) {
+      session.user.id = token.id as string
       return session
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token
     }
+  },
+  session: {
+    strategy: "jwt"
   }
 } satisfies NextAuthConfig
 

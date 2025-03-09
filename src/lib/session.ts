@@ -46,7 +46,7 @@ export async function verifySession() {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
     const OAuthSession = await auth()
-    
+
     if (!token && !OAuthSession) {
         redirect('/')
     }
@@ -67,7 +67,6 @@ export async function verifySession() {
 
     return { userId: OAuthSession?.user?.id as string }
 }
-
 export async function deleteSession() {
     const cookieStore = await cookies()
     cookieStore.getAll().forEach(cookie => {
