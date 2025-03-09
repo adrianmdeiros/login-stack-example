@@ -1,9 +1,8 @@
 import { users } from "@/db/schema";
 import { eq } from 'drizzle-orm'
-import { db } from "@/db";
+import { db } from "@/db/schema";
 import { verifySession } from "@/lib/session";
 import { cache } from "react";
-import { User } from "@/lib/definitions";
 
 export const getUserByEmail = cache(async (email: string) => {
     return await db
@@ -12,18 +11,20 @@ export const getUserByEmail = cache(async (email: string) => {
         .where(eq(users.email, email))
 })
 
-export const saveUser = async (user: User) => {
+export const saveUser = async (user: any) => {
     return await db.insert(users).values({
+        name: null,
         email: user.email,
-        password: user.password!,
-        avatarUrl: user.avatarUrl
+        emailVerified: null,	
+        password: user.password,
+        image: user.avatarUrl
     }).returning({ id: users.id })
 }
 
 export const getUserById = cache(async (id: string) => {
     await verifySession()
     return await db
-        .select({ email: users.email, avatarUrl: users.avatarUrl })
+        .select({ name: users.name, email: users.email, image: users.image })
         .from(users)
         .where(eq(users.id, id))
 })

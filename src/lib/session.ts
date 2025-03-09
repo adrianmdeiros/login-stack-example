@@ -3,6 +3,7 @@ import 'server-only'
 import { JWTPayload, jwtVerify, SignJWT } from "jose"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { auth } from '@/auth'
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 
@@ -38,31 +39,38 @@ export async function createSession(userId: string) {
         path: '/'
     })
 
-    redirect(`/user/${userId}`)
+    redirect(`/user`)
 }
 
 export async function verifySession() {
     const cookieStore = await cookies()
     const token = cookieStore.get('token')?.value
-
-    if (!token) {
+    const OAuthSession = await auth()
+    
+    if (!token && !OAuthSession) {
         redirect('/')
     }
 
-    const session = await decrypt(token)
+    if (token) {
+        const normalSession = await decrypt(token)
 
-    if (!session) {
-        redirect('/')
+        if (!normalSession) {
+            redirect('/')
+        }
+
+        if (normalSession.exp && normalSession.exp < Date.now() / 1000) {
+            redirect('/')
+        }
+
+        return { userId: normalSession.userId as string }
     }
 
-    if(session.exp && session.exp < Date.now() / 1000) {
-        redirect('/')
-    }
-
-    return session
+    return { userId: OAuthSession?.user?.id as string }
 }
 
 export async function deleteSession() {
     const cookieStore = await cookies()
-    cookieStore.delete('token')
+    cookieStore.getAll().forEach(cookie => {
+        cookieStore.delete(cookie.name)
+    })
 }

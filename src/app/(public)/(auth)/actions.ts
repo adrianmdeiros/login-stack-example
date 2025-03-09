@@ -8,7 +8,7 @@ import { getUserByEmail, saveUser } from '@/data/user'
 
 
 export async function GoogleSignIn() {
-    return await OAuthSignIn('google')
+    return await OAuthSignIn('google', { redirectTo: '/user' })
 }
 
 export async function signUp(_: unknown, formData: FormData) {
@@ -75,7 +75,17 @@ export async function signIn(_: unknown, formData: FormData) {
         }
     }
 
-    const checkPassword = await compare(validatedFields.data.password, user[0].password)
+    if(!user[0].password) {
+        return {
+            success: false,
+            message: 'User already exists. Maybe you already signed up with Google.',
+            fieldData: {
+                email: formData.get('email') as string,
+            }
+        }
+    }
+
+    const checkPassword = await compare(validatedFields.data.password, user[0].password!)
 
     if (!checkPassword) {
         return {
